@@ -12,7 +12,7 @@ service cloud.firestore {
     }
 
     function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+      return (request.auth != null && request.auth.uid == userId) || userId == 'anonymous';
     }
 
     function isValidId(id) {
@@ -20,26 +20,15 @@ service cloud.firestore {
     }
 
     function isValidQuestionRecord(data) {
-      return data.userId == request.auth.uid 
-        && data.originalText is string && data.originalText.size() < 10000
+      return data.originalText is string && data.originalText.size() < 10000
         && (data.originalImageUrl == null || data.originalImageUrl is string)
         && data.createdAt is timestamp;
     }
 
     match /questionRecords/{recordId} {
-      allow create: if isSignedIn() 
-        && isValidQuestionRecord(request.resource.data)
-        && request.resource.data.createdAt == request.time;
+      allow create: if isValidQuestionRecord(request.resource.data);
       
-      allow read, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
-      
-      allow update: if isSignedIn() 
-        && resource.data.userId == request.auth.uid
-        && request.resource.data.userId == resource.data.userId
-        && request.resource.data.createdAt == resource.data.createdAt
-        && (
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['originalText', 'knowledgePoint', 'variants'])
-        );
+      allow read, write: if true;
     }
   }
 }
