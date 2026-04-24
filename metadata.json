@@ -1,0 +1,12 @@
+{
+  "name": "错题举一反三打印机",
+  "description": "拍照识别错题，AI智能生成3道举一反三变式题，支持解析查阅与错题本PDF生成打印。",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "OCR识别",
+    "举一反三生成",
+    "PDF打印"
+  ]
+}

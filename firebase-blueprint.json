@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "QuestionRecord": {
+      "title": "错题记录",
+      "description": "保存用户识别的原始错题及其生成的举一反三题目",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "originalImageUrl": { "type": "string", "description": "原始错题图片链接" },
+        "originalText": { "type": "string", "description": "OCR识别出的题目文本" },
+        "knowledgePoint": { "type": "string", "description": "AI判断的知识点" },
+        "variants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": { "type": "string", "description": "变式题内容" },
+              "answer": { "type": "string", "description": "答案" },
+              "analysis": { "type": "string", "description": "侧重易错点的解析" }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "originalText", "createdAt"]
+    }
+  },
+  "firestore": {
+    "questionRecords": {
+      "schema": "QuestionRecord",
+      "description": "错题记录集合"
+    }
+  }
+}
