@@ -52,6 +52,8 @@ export default function RecognitionPage({ user, onSaved }: RecognitionPageProps)
       
       if (errorMsg.includes('apiKey') || errorMsg.includes('MISSING_API_KEY') || errorMsg.includes('API_KEY')) {
         msg = '未检测到 API Key，请在 AI Studio 设置中添加 VITE_GEMINI_API_KEY';
+      } else if (errorMsg.includes('Your project has been denied access')) {
+        msg = '您的 API 项目访问被拒绝 (403)。请尝试前往 Google AI Studio 重新生成一个新的 API Key (建议在新项目中创建)，并在设置中更新。';
       } else if (errorMsg.includes('PERMISSION_DENIED') || errorMsg.includes('403')) {
         msg = 'Gemini API 访问被拒绝 (403)。请确保您的 API Key 是有效的，并且已在项目中启用了 Generative AI API。';
       } else if (errorMsg.includes('QUOTA_EXCEEDED') || errorMsg.includes('429')) {
