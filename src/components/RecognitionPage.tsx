@@ -48,9 +48,18 @@ export default function RecognitionPage({ user, onSaved }: RecognitionPageProps)
     } catch (error: any) {
       console.error("Recognition Error:", error);
       let msg = '识别失败，请重试';
-      if (error?.message?.includes('apiKey') || error?.message?.includes('MISSING_API_KEY')) {
-        msg = '未检测到 API Key，请在 AI Studio 设置中添加 VITE_GEMINI_API_KEY 并确保点击了部署/保存';
+      const errorMsg = error?.message || String(error);
+      
+      if (errorMsg.includes('apiKey') || errorMsg.includes('MISSING_API_KEY') || errorMsg.includes('API_KEY')) {
+        msg = '未检测到 API Key，请在 AI Studio 设置中添加 VITE_GEMINI_API_KEY';
+      } else if (errorMsg.includes('PERMISSION_DENIED') || errorMsg.includes('403')) {
+        msg = 'Gemini API 访问被拒绝 (403)。请确保您的 API Key 是有效的，并且已在项目中启用了 Generative AI API。';
+      } else if (errorMsg.includes('QUOTA_EXCEEDED') || errorMsg.includes('429')) {
+        msg = 'API 配额已耗尽或请求太频繁，请稍后再试。';
+      } else {
+        msg = `识别异常: ${errorMsg.substring(0, 100)}`;
       }
+      
       alert(msg);
       setStep('upload'); // Go back to start
     } finally {
@@ -67,7 +76,8 @@ export default function RecognitionPage({ user, onSaved }: RecognitionPageProps)
       setStep('variants');
     } catch (error: any) {
       console.error("Variants Generation Error:", error);
-      alert('生成变式失败，请检查 API Key 配置或网络状态后重试');
+      const errorMsg = error?.message || String(error);
+      alert(`生成变式失败: ${errorMsg.substring(0, 50)}... 请检查 API Key 配置或网络状态后重试`);
     } finally {
       setLoading(false);
     }
