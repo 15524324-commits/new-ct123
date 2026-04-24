@@ -1,9 +1,35 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { VariantQuestion } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Detect API Key from multiple potential environment sources in Vite
+const getApiKey = () => {
+  // Try Vite prefixed variable first (recommended for client-side)
+  const viteKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
+  if (viteKey) return viteKey;
+  
+  // Fallback to standard variable (may be available depending on build config)
+  const processKey = typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : null;
+  if (processKey) return processKey;
+  
+  // Also try non-prefixed Vite variable if it exists
+  const viteGeneric = (import.meta as any).env?.GEMINI_API_KEY;
+  if (viteGeneric) return viteGeneric;
+
+  return null;
+};
+
+const apiKey = getApiKey();
+
+if (!apiKey) {
+  console.warn("GEMINI_API_KEY is not defined. Please add VITE_GEMINI_API_KEY to your environment variables.");
+}
+
+const ai = new GoogleGenAI({ apiKey: apiKey || "" });
 
 export async function recognizeQuestion(base64Image: string): Promise<{ text: string, knowledgePoint: string }> {
+  if (!apiKey) {
+    throw new Error('MISSING_API_KEY: Please set VITE_GEMINI_API_KEY environment variable.');
+  }
   const model = "gemini-3-flash-preview";
   
   const response = await ai.models.generateContent({
@@ -47,6 +73,9 @@ export async function recognizeQuestion(base64Image: string): Promise<{ text: st
 }
 
 export async function generateVariants(originalText: string, knowledgePoint: string): Promise<VariantQuestion[]> {
+  if (!apiKey) {
+    throw new Error('MISSING_API_KEY: Please set VITE_GEMINI_API_KEY environment variable.');
+  }
   const model = "gemini-3-flash-preview";
   
   const response = await ai.models.generateContent({

@@ -45,9 +45,14 @@ export default function RecognitionPage({ user, onSaved }: RecognitionPageProps)
       const result = await recognizeQuestion(img);
       setOcrText(result.text);
       setKp(result.knowledgePoint);
-    } catch (error) {
-      console.error(error);
-      alert('识别失败，请重试');
+    } catch (error: any) {
+      console.error("Recognition Error:", error);
+      let msg = '识别失败，请重试';
+      if (error?.message?.includes('apiKey') || error?.message?.includes('MISSING_API_KEY')) {
+        msg = '未检测到 API Key，请在 AI Studio 设置中添加 VITE_GEMINI_API_KEY 并确保点击了部署/保存';
+      }
+      alert(msg);
+      setStep('upload'); // Go back to start
     } finally {
       setLoading(false);
     }
@@ -60,9 +65,9 @@ export default function RecognitionPage({ user, onSaved }: RecognitionPageProps)
       setVariants(result);
       setLastGeneratedText(ocrText); // Save the text used for this generation
       setStep('variants');
-    } catch (error) {
-      console.error(error);
-      alert('生成变式失败，请重试');
+    } catch (error: any) {
+      console.error("Variants Generation Error:", error);
+      alert('生成变式失败，请检查 API Key 配置或网络状态后重试');
     } finally {
       setLoading(false);
     }
